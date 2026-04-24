@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { app, BrowserWindow, screen, ipcMain } from 'electron';
+import { app, BrowserWindow, screen, ipcMain, shell } from 'electron';
 import { spawn } from 'node:child_process';
 import fs from 'fs';
 let packagedServerProcess = null;
@@ -37,10 +37,124 @@ function createWindow() {
         show: true,
         alwaysOnTop: false,
         autoHideMenuBar: true,
+        frame: false, // 隐藏系统框架，使用自定义顶栏
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false
+        }
+    });
+    // 窗口控制 IPC 处理
+    ipcMain.handle('window:minimize', () => {
+        win.minimize();
+    });
+    ipcMain.handle('window:maximize', () => {
+        if (win.isMaximized()) {
+            win.unmaximize();
+        }
+        else {
+            win.maximize();
+        }
+    });
+    ipcMain.handle('window:close', () => {
+        win.close();
+    });
+    ipcMain.handle('window:isMaximized', () => {
+        return win.isMaximized();
+    });
+    ipcMain.handle('window:openExternal', (_e, url) => {
+        if (url) {
+            shell.openExternal(url);
+        }
+    });
+    // crawler IPC handlers
+    ipcMain.handle('crawler:get-homeworks', async () => {
+        const filePath = path.join(app.getAppPath(), 'python', 'upcoming_homeworks.json');
+        if (fs.existsSync(filePath)) {
+            try {
+                const raw = fs.readFileSync(filePath, 'utf-8');
+                return JSON.parse(raw);
+            }
+            catch (err) {
+                console.error('Failed to parse upcoming_homeworks.json', err);
+                return [];
+            }
+        }
+        return [];
+    });
+    ipcMain.handle('crawler:get-courses', async () => {
+        const filePath = path.join(app.getAppPath(), 'python', 'courses_config.json');
+        if (fs.existsSync(filePath)) {
+            try {
+                const raw = fs.readFileSync(filePath, 'utf-8');
+                return JSON.parse(raw);
+            }
+            catch (err) {
+                console.error('Failed to parse courses_config.json', err);
+                return [];
+            }
+        }
+        return [];
+    });
+    ipcMain.handle('crawler:save-courses', async (_e, courses) => {
+        const filePath = path.join(app.getAppPath(), 'python', 'courses_config.json');
+        try {
+            fs.writeFileSync(filePath, JSON.stringify(courses, null, 4), 'utf-8');
+            return { success: true };
+        }
+        catch (err) {
+            console.error('Failed to save courses_config.json', err);
+            return { success: false, error: err.message };
+        }
+    });
+    ipcMain.handle('crawler:run-scripts', async () => {
+        const pythonDir = path.join(app.getAppPath(), 'python');
+        const scripts = ['头歌爬虫.py', '处理数据.py', '筛选作业.py'];
+        const outputPath = path.join(pythonDir, 'upcoming_homeworks.json');
+        try {
+            for (const script of scripts) {
+                const scriptPath = path.join(pythonDir, script);
+                console.log(`Running crawler script: ${scriptPath}`);
+                let outputLog = '';
+                await new Promise((resolve, reject) => {
+                    const childProcess = spawn('python', [scriptPath], {
+                        cwd: pythonDir,
+                        stdio: ['ignore', 'pipe', 'pipe'],
+                        env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
+                    });
+                    childProcess.stdout.on('data', (d) => {
+                        const str = d.toString();
+                        console.log(`[${script}]`, str);
+                        outputLog += str;
+                    });
+                    childProcess.stderr.on('data', (d) => {
+                        const str = d.toString();
+                        console.error(`[${script}] error:`, str);
+                        outputLog += str;
+                    });
+                    childProcess.on('close', (code) => {
+                        if (code === 0)
+                            resolve();
+                        else {
+                            reject(new Error(outputLog.trim() || `脚本 ${script} 退出，状态码: ${code}`));
+                        }
+                    });
+                    childProcess.on('error', (err) => {
+                        reject(new Error(`启动脚本 ${script} 失败: ${err.message}`));
+                    });
+                });
+            }
+            if (fs.existsSync(outputPath)) {
+                const data = fs.readFileSync(outputPath, 'utf-8');
+                return { success: true, data: JSON.parse(data) };
+            }
+            else {
+                throw new Error('未找到 upcoming_homeworks.json 文件');
+            }
+        }
+        catch (error) {
+            console.error('爬虫脚本执行失败:', error);
+            return { success: false, error: error.message };
         }
     });
     if (process.env.VITE_DEV_SERVER_URL) {
@@ -353,7 +467,88 @@ function createWindow() {
 }
 app.whenReady().then(() => {
     startPackagedServer();
+    // === 注册主题文件操作 IPC ===
+    ipcMain.handle('theme:get-themes', async () => {
+        const fs = require('fs');
+        const path = require('path');
+        let colorsDir = path.join(__dirname, '../src/assets/colors');
+        if (!fs.existsSync(colorsDir)) {
+            colorsDir = path.join(__dirname, '../../src/assets/colors');
+        }
+        if (!fs.existsSync(colorsDir))
+            return {};
+        const themes = {};
+        try {
+            const files = fs.readdirSync(colorsDir);
+            for (const file of files) {
+                if (file.endsWith('.json') && file !== 'defaults.json') {
+                    const content = fs.readFileSync(path.join(colorsDir, file), 'utf-8');
+                    const name = file.replace('.json', '');
+                    let parsed = {};
+                    try {
+                        parsed = JSON.parse(content);
+                    }
+                    catch (e) { }
+                    themes[name] = parsed[name] || parsed;
+                }
+            }
+        }
+        catch (e) {
+            console.error('读取主题文件失败', e);
+        }
+        return themes;
+    });
+    ipcMain.handle('theme:save-theme', async (_e, name, themeData) => {
+        const fs = require('fs');
+        const path = require('path');
+        let colorsDir = path.join(__dirname, '../src/assets/colors');
+        if (!fs.existsSync(colorsDir)) {
+            colorsDir = path.join(__dirname, '../../src/assets/colors');
+        }
+        if (!fs.existsSync(colorsDir)) {
+            try {
+                fs.mkdirSync(colorsDir, { recursive: true });
+            }
+            catch (e) { }
+        }
+        try {
+            const filePath = path.join(colorsDir, `${name}.json`);
+            const saveObj = { [name]: themeData };
+            fs.writeFileSync(filePath, JSON.stringify(saveObj, null, 2), 'utf-8');
+            return { success: true };
+        }
+        catch (e) {
+            return { success: false, error: e.message };
+        }
+    });
+    ipcMain.handle('theme:delete-theme', async (_e, name) => {
+        const fs = require('fs');
+        const path = require('path');
+        let colorsDir = path.join(__dirname, '../src/assets/colors');
+        if (!fs.existsSync(colorsDir)) {
+            colorsDir = path.join(__dirname, '../../src/assets/colors');
+        }
+        try {
+            const target = path.join(colorsDir, `${name}.json`);
+            if (fs.existsSync(target)) {
+                fs.unlinkSync(target);
+            }
+            return { success: true };
+        }
+        catch (e) {
+            return { success: false, error: e.message };
+        }
+    });
     createWindow();
+    // 拦截所有通过 target="_blank" 打开的新窗口请求，改用系统默认浏览器打开
+    app.on('web-contents-created', (_, contents) => {
+        contents.setWindowOpenHandler(({ url }) => {
+            // 在系统默认浏览器中打开链接
+            shell.openExternal(url);
+            // 阻止 Electron 创建新窗口
+            return { action: 'deny' };
+        });
+    });
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0)
             createWindow();

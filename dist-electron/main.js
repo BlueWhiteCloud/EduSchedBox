@@ -3,13 +3,31 @@ const path = require("node:path");
 const electron = require("electron");
 const node_child_process = require("node:child_process");
 const fs = require("fs");
+function _interopNamespaceDefault(e) {
+  const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
+  if (e) {
+    for (const k in e) {
+      if (k !== "default") {
+        const d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: () => e[k]
+        });
+      }
+    }
+  }
+  n.default = e;
+  return Object.freeze(n);
+}
+const path__namespace = /* @__PURE__ */ _interopNamespaceDefault(path);
+const fs__namespace = /* @__PURE__ */ _interopNamespaceDefault(fs);
 let packagedServerProcess = null;
 function startPackagedServer() {
   var _a, _b;
   try {
     const exeName = process.platform === "win32" ? "scheduler_api.exe" : "scheduler_api";
-    const serverExe = path.join(process.resourcesPath, "server", exeName);
-    if (fs.existsSync(serverExe)) {
+    const serverExe = path__namespace.join(process.resourcesPath, "server", exeName);
+    if (fs__namespace.existsSync(serverExe)) {
       packagedServerProcess = node_child_process.spawn(serverExe, [], { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
       (_a = packagedServerProcess.stdout) == null ? void 0 : _a.on("data", (d) => console.log("[server]", d.toString()));
       (_b = packagedServerProcess.stderr) == null ? void 0 : _b.on("data", (d) => console.error("[server]", d.toString()));
@@ -43,7 +61,7 @@ function createWindow() {
     frame: false,
     // 隐藏系统框架，使用自定义顶栏
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path__namespace.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false
     }
@@ -70,10 +88,10 @@ function createWindow() {
     }
   });
   electron.ipcMain.handle("crawler:get-homeworks", async () => {
-    const filePath = path.join(electron.app.getAppPath(), "python", "upcoming_homeworks.json");
-    if (fs.existsSync(filePath)) {
+    const filePath = path__namespace.join(electron.app.getAppPath(), "python", "upcoming_homeworks.json");
+    if (fs__namespace.existsSync(filePath)) {
       try {
-        const raw = fs.readFileSync(filePath, "utf-8");
+        const raw = fs__namespace.readFileSync(filePath, "utf-8");
         return JSON.parse(raw);
       } catch (err) {
         console.error("Failed to parse upcoming_homeworks.json", err);
@@ -83,10 +101,10 @@ function createWindow() {
     return [];
   });
   electron.ipcMain.handle("crawler:get-courses", async () => {
-    const filePath = path.join(electron.app.getAppPath(), "python", "courses_config.json");
-    if (fs.existsSync(filePath)) {
+    const filePath = path__namespace.join(electron.app.getAppPath(), "python", "courses_config.json");
+    if (fs__namespace.existsSync(filePath)) {
       try {
-        const raw = fs.readFileSync(filePath, "utf-8");
+        const raw = fs__namespace.readFileSync(filePath, "utf-8");
         return JSON.parse(raw);
       } catch (err) {
         console.error("Failed to parse courses_config.json", err);
@@ -96,9 +114,9 @@ function createWindow() {
     return [];
   });
   electron.ipcMain.handle("crawler:save-courses", async (_e, courses) => {
-    const filePath = path.join(electron.app.getAppPath(), "python", "courses_config.json");
+    const filePath = path__namespace.join(electron.app.getAppPath(), "python", "courses_config.json");
     try {
-      fs.writeFileSync(filePath, JSON.stringify(courses, null, 4), "utf-8");
+      fs__namespace.writeFileSync(filePath, JSON.stringify(courses, null, 4), "utf-8");
       return { success: true };
     } catch (err) {
       console.error("Failed to save courses_config.json", err);
@@ -106,12 +124,12 @@ function createWindow() {
     }
   });
   electron.ipcMain.handle("crawler:run-scripts", async () => {
-    const pythonDir = path.join(electron.app.getAppPath(), "python");
+    const pythonDir = path__namespace.join(electron.app.getAppPath(), "python");
     const scripts = ["头歌爬虫.py", "处理数据.py", "筛选作业.py"];
-    const outputPath = path.join(pythonDir, "upcoming_homeworks.json");
+    const outputPath = path__namespace.join(pythonDir, "upcoming_homeworks.json");
     try {
       for (const script of scripts) {
-        const scriptPath = path.join(pythonDir, script);
+        const scriptPath = path__namespace.join(pythonDir, script);
         console.log(`Running crawler script: ${scriptPath}`);
         let outputLog = "";
         await new Promise((resolve, reject) => {
@@ -141,8 +159,8 @@ function createWindow() {
           });
         });
       }
-      if (fs.existsSync(outputPath)) {
-        const data = fs.readFileSync(outputPath, "utf-8");
+      if (fs__namespace.existsSync(outputPath)) {
+        const data = fs__namespace.readFileSync(outputPath, "utf-8");
         return { success: true, data: JSON.parse(data) };
       } else {
         throw new Error("未找到 upcoming_homeworks.json 文件");
@@ -155,7 +173,7 @@ function createWindow() {
   if (process.env.VITE_DEV_SERVER_URL) {
     win.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
-    const indexPath = electron.app.isPackaged ? path.join(process.resourcesPath, "dist", "index.html") : path.join(__dirname, "../dist/index.html");
+    const indexPath = electron.app.isPackaged ? path__namespace.join(process.resourcesPath, "dist", "index.html") : path__namespace.join(__dirname, "../dist/index.html");
     win.loadFile(indexPath);
   }
   electron.ipcMain.handle("window:setAlwaysOnTop", (_e, flag) => {
@@ -175,7 +193,7 @@ function createWindow() {
       show: true,
       autoHideMenuBar: true,
       webPreferences: {
-        preload: path.join(__dirname, "preload.js"),
+        preload: path__namespace.join(__dirname, "preload.js"),
         contextIsolation: true,
         nodeIntegration: false
       }
@@ -183,19 +201,19 @@ function createWindow() {
     if (process.env.VITE_DEV_SERVER_URL) {
       genWin.loadURL(`${process.env.VITE_DEV_SERVER_URL}#/generate`);
     } else {
-      const genIndexPath = electron.app.isPackaged ? path.join(process.resourcesPath, "dist", "index.html") : path.join(__dirname, "../dist/index.html");
+      const genIndexPath = electron.app.isPackaged ? path__namespace.join(process.resourcesPath, "dist", "index.html") : path__namespace.join(__dirname, "../dist/index.html");
       console.log("generate:openWindow loading file:", genIndexPath);
       genWin.loadFile(genIndexPath, { hash: "/generate" });
     }
     return true;
   });
   electron.ipcMain.handle("generate:request", async (_e, payload) => {
-    const logFile = path.join(process.cwd(), "main_process_generate_log.txt");
-    fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: generate:request handler called with weekStart: ${payload == null ? void 0 : payload.weekStart}
+    const logFile = path__namespace.join(process.cwd(), "main_process_generate_log.txt");
+    fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: generate:request handler called with weekStart: ${payload == null ? void 0 : payload.weekStart}
 `);
     try {
       const url = "http://127.0.0.1:8765/generate";
-      fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempting HTTP to ${url}
+      fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempting HTTP to ${url}
 `);
       electron.ipcMain.handle("generate:forceRefetch", async (_e2, p) => {
         try {
@@ -218,19 +236,19 @@ function createWindow() {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeoutMs);
         try {
-          fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} starting fetch
+          fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} starting fetch
 `);
           const res = await fetch(url, { method: "POST", body: JSON.stringify(payload), headers: { "Content-Type": "application/json", "Connection": "close" }, signal: controller.signal });
           clearTimeout(timer);
           const took = Date.now() - attemptStart;
           if (res.ok) {
-            fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} res.ok, status ${res.status}, took ${took}ms
+            fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} res.ok, status ${res.status}, took ${took}ms
 `);
             console.log("generate:request res.ok, status", res.status, "content-length", res.headers.get("content-length"));
             try {
               const jsonPromise = res.json();
               const json = await Promise.race([jsonPromise, new Promise((_, reject) => setTimeout(() => reject(new Error("res.json timeout")), 6e4))]);
-              fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} json parsed, weekStart: ${json == null ? void 0 : json.weekStart}
+              fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} json parsed, weekStart: ${json == null ? void 0 : json.weekStart}
 `);
               console.log("generate:request json parsed, weekStart", json.weekStart);
               const meta = { source: "deepseek" };
@@ -239,19 +257,19 @@ function createWindow() {
                 if (json.__meta.error) meta.error = json.__meta.error;
               }
               const result = { ...json, __meta: meta };
-              fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} about to return result: ${JSON.stringify(result)}
+              fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} about to return result: ${JSON.stringify(result)}
 `);
               console.log("generate:request about to return result", result);
               return result;
             } catch (e) {
-              fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} res.json failed: ${e.message}
+              fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} res.json failed: ${e.message}
 `);
               console.error("generate:request res.json failed", e);
               throw e;
             }
           } else {
             const text = await res.text().catch(() => "");
-            fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} non-ok status ${res.status}, took ${took}ms
+            fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} non-ok status ${res.status}, took ${took}ms
 `);
             console.warn("generate:request http returned non-ok", res.status, text.slice(0, 200), "attempt:", attempt + 1, "tookMs:", took);
             lastErr = new Error(`http non-ok ${res.status}`);
@@ -259,24 +277,24 @@ function createWindow() {
         } catch (err) {
           clearTimeout(timer);
           const took = Date.now() - attemptStart;
-          fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} failed: ${err.message}, took ${took}ms
+          fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: attempt ${attempt + 1} failed: ${err.message}, took ${took}ms
 `);
           console.warn("generate:request http call attempt failed", { name: err == null ? void 0 : err.name, message: err == null ? void 0 : err.message, attempt: attempt + 1, timeoutMs, took });
           lastErr = err;
         }
       }
-      fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: all attempts failed, falling back to spawn
+      fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: all attempts failed, falling back to spawn
 `);
       console.warn("generate:request http failed after retries, will fallback to python spawn/mock", lastErr == null ? void 0 : lastErr.message);
     } catch (err) {
-      fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: unexpected error before attempts: ${err.message}
+      fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: unexpected error before attempts: ${err.message}
 `);
       console.warn("generate:request unexpected error before http attempts, falling back to python spawn/mock:", err == null ? void 0 : err.message);
     }
     try {
-      fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: starting python spawn
+      fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: starting python spawn
 `);
-      const scriptPath = path.join(electron.app.getAppPath(), "python", "scheduler.py");
+      const scriptPath = path__namespace.join(electron.app.getAppPath(), "python", "scheduler.py");
       const res = await new Promise((resolve, reject) => {
         const proc = node_child_process.spawn("python", [scriptPath], { stdio: ["pipe", "pipe", "pipe"] });
         let stdout = "";
@@ -307,7 +325,7 @@ function createWindow() {
         } catch (e) {
         }
       });
-      fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: python spawn returned: ${JSON.stringify(res).slice(0, 200)}
+      fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: python spawn returned: ${JSON.stringify(res).slice(0, 200)}
 `);
       console.log("generate:request python result", res && res.weekStart);
       const provisionalFlag = res && res.__meta && res.__meta.provisional;
@@ -347,11 +365,11 @@ function createWindow() {
       })();
       return { ...res, __meta: returnedMeta };
     } catch (err) {
-      fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: python spawn failed: ${err.message}
+      fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: python spawn failed: ${err.message}
 `);
       console.warn("generate:request python call failed, falling back to mock", err == null ? void 0 : err.message);
     }
-    fs.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: falling back to mock
+    fs__namespace.appendFileSync(logFile, `${(/* @__PURE__ */ new Date()).toISOString()}: falling back to mock
 `);
     const timeSlots = [
       "08:00",

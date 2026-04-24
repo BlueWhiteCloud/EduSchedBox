@@ -8,18 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
-    "test": "vitest",
-    "start": "electron .",
-    "start:python": "python -m uvicorn python.scheduler_api:app --host 127.0.0.1 --port 8765 --reload",
-    "start:python:dev": "powershell -NoProfile -Command \"if(Test-Path .\\.env){$env:DEEPSEEK_URL=(Get-Content .\\.env | Select-String 'DEEPSEEK_URL').ToString().Split('=')[1]; $env:DEEPSEEK_API_KEY=(Get-Content .\\.env | Select-String 'DEEPSEEK_API_KEY').ToString().Split('=')[1];}; python -m uvicorn python.scheduler_api:app --host 127.0.0.1 --port 8765 --reload\"",
-    "py:build": "powershell -NoProfile -Command \"cd python; py -3 -m pip install --user pyinstaller; py -3 -m PyInstaller --onefile --hidden-import sniffio --add-data 'prompts.py;.' scheduler_api.py; mkdir -Force ..\\build\\resources\\server; Copy-Item -Path dist\\scheduler_api.exe -Destination ..\\build\\resources\\server\\ -Force\"",
-    "py:clean": "powershell -NoProfile -Command \"cd python; rm -Recurse -Force dist build __pycache__ *.spec -ErrorAction SilentlyContinue\"",
-    "copy:renderer": "npx vite build --outDir build/resources/dist",
-    "build:electron": "npm run build && tsc -p tsconfig.json && npm run py:build && npm run copy:renderer && npx electron-builder --win --x64",
-    "pack:portable": "npx electron-builder --win portable --x64",
-    "release:win": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1",
-    "release:win:clean": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -ForceClean",
-    "test:e2e": "node e2e/test_generate.js"
+    "electron:dev": "vite",
+    "electron:build": "npm run build && tsc -p tsconfig.json && electron-builder",
+    "start": "electron dist-electron/main.js"
   },
   "dependencies": {
     "pinia": "^3.0.4",
@@ -37,26 +28,26 @@
     "electron-builder": "^24.7.0"
   },
   "build": {
-    "appId": "com.yourcompany.newcalendar",
-    "productName": "NewCalendar",
+    "appId": "com.eduschedbox.app",
+    "productName": "EduSchedBox",
     "files": [
       "dist-electron/**/*",
-      "node_modules/**/*",
-      "build/resources/**"
+      "package.json"
     ],
     "extraResources": [
       {
-        "from": "build/resources/server",
-        "to": "server",
+        "from": "dist",
+        "to": "dist",
         "filter": ["**/*"]
       },
       {
-        "from": "build/resources/dist",
-        "to": "dist",
+        "from": "python",
+        "to": "python",
         "filter": ["**/*"]
       }
     ],
     "directories": {
+      "output": "release",
       "buildResources": "build"
     },
     "win": {

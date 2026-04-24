@@ -1,7 +1,7 @@
-import path from 'node:path'
+import * as path from 'node:path'
 import { app, BrowserWindow, screen, ipcMain, shell } from 'electron'
 import { spawn } from 'node:child_process'
-import fs from 'fs'
+import * as fs from 'fs'
 
 let packagedServerProcess: any = null
 

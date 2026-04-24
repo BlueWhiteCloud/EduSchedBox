@@ -17,6 +17,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     generateForceRefetch: (payload) => ipcRenderer.invoke('generate:forceRefetch', payload),
     closeWindow: () => ipcRenderer.invoke('window:closeMe'),
+    getUpcomingHomeworks: () => ipcRenderer.invoke('crawler:get-homeworks'),
+    getCoursesConfig: () => ipcRenderer.invoke('crawler:get-courses'),
+    saveCoursesConfig: (courses) => ipcRenderer.invoke('crawler:save-courses', courses),
+    runCrawlerScripts: () => ipcRenderer.invoke('crawler:run-scripts'),
+    // Theme settings
+    getThemes: () => ipcRenderer.invoke('theme:get-themes'),
+    saveTheme: (name, themeData) => ipcRenderer.invoke('theme:save-theme', name, themeData),
+    deleteTheme: (name) => ipcRenderer.invoke('theme:delete-theme', name),
     notifyCalendarUpdated: (payload) => ipcRenderer.invoke('calendar:notifyUpdated', payload),
     onCalendarUpdated: (callback) => {
         ipcRenderer.on('calendar:updated', (_event, payload) => {
@@ -27,5 +35,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
                 console.error('onCalendarUpdated callback error', e);
             }
         });
-    }
+    },
+    // 窗口控制
+    minimize: () => ipcRenderer.invoke('window:minimize'),
+    maximize: () => ipcRenderer.invoke('window:maximize'),
+    close: () => ipcRenderer.invoke('window:close'),
+    isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+    openExternal: (url) => ipcRenderer.invoke('window:openExternal', url)
 });
