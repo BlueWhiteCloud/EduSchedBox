@@ -1,0 +1,22 @@
+{
+  "蓝色系": {
+    "--bg": "#0f1216",
+    "--panel": "#1e2327",
+    "--text": "#e6e8eb",
+    "--muted": "#9aa4b2",
+    "--accent": "#3cffef",
+    "--accent-dark": "#1e2b35",
+    "--warning": "#3dffa5",
+    "--warning-dark": "#182a29",
+    "--golden-color": "#fede44",
+    "--theme-color-light": "#2ce8d2",
+    "--theme-color-dark": "#007d80",
+    "--button-text": "#ffffff",
+    "--task-progress-bar-bg": "#035c5e",
+    "--task-scheduled-bar-bg": "#20a0a2",
+    "--cursor-fill": "#03585e",
+    "--cursor-stroke": "#1afbff",
+    "--pointer-cursor-fill": "#48dcf9",
+    "--pointer-cursor-stroke": "#6bf5ff"
+  }
+}

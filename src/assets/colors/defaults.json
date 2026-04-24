@@ -1,0 +1,22 @@
+{
+    "default": {
+      "--bg": "#0f1216",
+      "--panel": "#1e2327",
+      "--text": "#e6e8eb",
+      "--muted": "#9aa4b2",
+      "--accent": "#3cffef",
+      "--accent-dark": "#1e2b35",
+      "--warning": "#ff3c7c",
+      "--warning-dark": "#2a1818",
+      "--golden-color": "#fede44",
+      "--theme-color-light": "#fe19ff",
+      "--theme-color-dark": "#800080",
+      "--button-text": "#ffffff",
+      "--task-progress-bar-bg": "#5d035d",
+      "--task-scheduled-bar-bg": "#a120a1",
+      "--cursor-fill": "#5d035d",
+      "--cursor-stroke": "#fe19ff",
+      "--pointer-cursor-fill": "#f946e0",
+      "--pointer-cursor-stroke": "#fb69ff"
+    }
+}

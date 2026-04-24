@@ -1,0 +1,22 @@
+{
+  "绿色系": {
+    "--bg": "#0f1216",
+    "--panel": "#1e2327",
+    "--text": "#e6e8eb",
+    "--muted": "#9aa4b2",
+    "--accent": "#8bff3d",
+    "--accent-dark": "#1e2b35",
+    "--warning": "#3dff7e",
+    "--warning-dark": "#1d2a18",
+    "--golden-color": "#fede44",
+    "--theme-color-light": "#93e82c",
+    "--theme-color-dark": "#338000",
+    "--button-text": "#ffffff",
+    "--task-progress-bar-bg": "#275e03",
+    "--task-scheduled-bar-bg": "#4da220",
+    "--cursor-fill": "#1e5e03",
+    "--cursor-stroke": "#5eff1a",
+    "--pointer-cursor-fill": "#66f948",
+    "--pointer-cursor-stroke": "#97ff6b"
+  }
+}

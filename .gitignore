@@ -1,0 +1,15 @@
+node_modules
+.vscode
+dist
+
+
+python/软件测试与验证_Classwork_result.json
+python/软件测试与验证_PictureHomework_result.json
+python/auth_cache.json
+python/homeworks_summary.json
+python/requirements.txt
+python/upcoming_homeworks.json
+src/assets/cursors/my-pointer-cursor.png
+src/assets/cursors/my-pointer-cursor-2.png
+src/assets/cursors/my-cursor.png
+开发计划最新.md
