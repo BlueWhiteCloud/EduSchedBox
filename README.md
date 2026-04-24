@@ -1,13 +1,16 @@
-# 软件使用说明
+# EduSchedBox v1.0.0 初始版
+## 头歌作业爬虫与日程管理工具
 
-**可以直接在Releases获取安装包EduSchedBox Setup 0.1.0.exe安装本程序。**
+**可以直接在Releases获取安装包EduSchedBox Setup 1.0.0.exe安装本程序。**
 
 对于对本项目代码开发感兴趣的可以使用
-1. `npm install`开始。
-
-2. 然后根据需求使用以下两条语句之一：
+1. `git clone https://github.com/BlueWhiteCloud/EduSchedBox.git`克隆仓库。
+2. `npm install`。
+3. 然后根据需求使用以下两条语句之一：
     `npm run dev`用于本地开发。
     `npm run electron:build`用于软件打包。
+
+时间有限，原始项目为几个月前纯vibe coding得到的，经过一段时间认真打磨后才得到当前版本，尚有许多可优化的地方，此外“生成日程”处功能目前仅为占位符，还望理解。
 
 # 头歌作业爬虫部分使用说明
 
