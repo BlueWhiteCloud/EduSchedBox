@@ -69,7 +69,7 @@ function createWindow() {
     });
     // crawler IPC handlers
     ipcMain.handle('crawler:get-homeworks', async () => {
-        const filePath = path.join(app.getAppPath(), 'python', 'upcoming_homeworks.json');
+        const filePath = path.join(process.resourcesPath, 'python', 'upcoming_homeworks.json');
         if (fs.existsSync(filePath)) {
             try {
                 const raw = fs.readFileSync(filePath, 'utf-8');
@@ -83,7 +83,7 @@ function createWindow() {
         return [];
     });
     ipcMain.handle('crawler:get-courses', async () => {
-        const filePath = path.join(app.getAppPath(), 'python', 'courses_config.json');
+        const filePath = path.join(process.resourcesPath, 'python', 'courses_config.json');
         if (fs.existsSync(filePath)) {
             try {
                 const raw = fs.readFileSync(filePath, 'utf-8');
@@ -97,7 +97,7 @@ function createWindow() {
         return [];
     });
     ipcMain.handle('crawler:save-courses', async (_e, courses) => {
-        const filePath = path.join(app.getAppPath(), 'python', 'courses_config.json');
+        const filePath = path.join(process.resourcesPath, 'python', 'courses_config.json');
         try {
             fs.writeFileSync(filePath, JSON.stringify(courses, null, 4), 'utf-8');
             return { success: true };
@@ -108,7 +108,7 @@ function createWindow() {
         }
     });
     ipcMain.handle('crawler:run-scripts', async () => {
-        const pythonDir = path.join(app.getAppPath(), 'python');
+        const pythonDir = path.join(process.resourcesPath, 'python');
         const scripts = ['头歌爬虫.py', '处理数据.py', '筛选作业.py'];
         const outputPath = path.join(pythonDir, 'upcoming_homeworks.json');
         try {
@@ -290,7 +290,7 @@ function createWindow() {
         // try to call python backend via spawn: python python/scheduler.py
         try {
             fs.appendFileSync(logFile, `${new Date().toISOString()}: starting python spawn\n`);
-            const scriptPath = path.join(app.getAppPath(), 'python', 'scheduler.py');
+            const scriptPath = path.join(process.resourcesPath, 'python', 'scheduler.py');
             // spawn python if script exists
             const res = await new Promise((resolve, reject) => {
                 const proc = spawn('python', [scriptPath], { stdio: ['pipe', 'pipe', 'pipe'] });

@@ -3,6 +3,13 @@ import { app, BrowserWindow, screen, ipcMain, shell } from 'electron'
 import { spawn } from 'node:child_process'
 import * as fs from 'fs'
 
+function getPythonDir() {
+  if (process.env.VITE_DEV_SERVER_URL) {
+    return path.join(__dirname, '../python')
+  }
+  return path.join(process.resourcesPath, 'python')
+}
+
 let packagedServerProcess: any = null
 
 function startPackagedServer() {
@@ -76,7 +83,7 @@ function createWindow() {
 
   // crawler IPC handlers
   ipcMain.handle('crawler:get-homeworks', async () => {
-    const filePath = path.join(app.getAppPath(), 'python', 'upcoming_homeworks.json')
+    const filePath = path.join(getPythonDir(), 'upcoming_homeworks.json')
     if (fs.existsSync(filePath)) {
       try {
         const raw = fs.readFileSync(filePath, 'utf-8')
@@ -90,7 +97,7 @@ function createWindow() {
   })
 
   ipcMain.handle('crawler:get-courses', async () => {
-    const filePath = path.join(app.getAppPath(), 'python', 'courses_config.json')
+    const filePath = path.join(getPythonDir(), 'courses_config.json')
     if (fs.existsSync(filePath)) {
       try {
         const raw = fs.readFileSync(filePath, 'utf-8')
@@ -104,7 +111,7 @@ function createWindow() {
   })
 
   ipcMain.handle('crawler:save-courses', async (_e, courses) => {
-    const filePath = path.join(app.getAppPath(), 'python', 'courses_config.json')
+    const filePath = path.join(getPythonDir(), 'courses_config.json')
     try {
       fs.writeFileSync(filePath, JSON.stringify(courses, null, 4), 'utf-8')
       return { success: true }
@@ -115,7 +122,7 @@ function createWindow() {
   })
 
   ipcMain.handle('crawler:run-scripts', async () => {
-    const pythonDir = path.join(app.getAppPath(), 'python')
+    const pythonDir = getPythonDir()
     const scripts = ['头歌爬虫.py', '处理数据.py', '筛选作业.py']
     const outputPath = path.join(pythonDir, 'upcoming_homeworks.json')
 
@@ -294,7 +301,7 @@ function createWindow() {
     // try to call python backend via spawn: python python/scheduler.py
     try {
       fs.appendFileSync(logFile, `${new Date().toISOString()}: starting python spawn\n`)
-      const scriptPath = path.join(app.getAppPath(), 'python', 'scheduler.py')
+      const scriptPath = path.join(getPythonDir(), 'scheduler.py')
       // spawn python if script exists
       const res = await new Promise<any>((resolve, reject) => {
         const proc = spawn('python', [scriptPath], { stdio: ['pipe', 'pipe', 'pipe'] })
